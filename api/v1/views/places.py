@@ -13,6 +13,9 @@ from models.user import User
 def get_places(city_id):
     """our hearts pump dust and our hairs all grey"""
     lizt = []
+    city = storage.get(City, city_id)
+    if city is None:
+        abort(404)
     places = storage.all(Place).values()
     for place in places:
         if place.city_id == city_id:
