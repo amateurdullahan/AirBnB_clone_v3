@@ -5,6 +5,7 @@ from models import storage
 from flask import jsonify, abort, request, Blueprint
 from models.place import Place
 from models.city import City
+from models.user import User
 
 
 @app_views.route('/cities/<city_id>/places', methods=['GET'],
@@ -12,6 +13,9 @@ from models.city import City
 def get_places(city_id):
     """our hearts pump dust and our hairs all grey"""
     lizt = []
+    city = storage.get(City, city_id)
+    if city is None:
+        abort(404)
     places = storage.all(Place).values()
     for place in places:
         if place.city_id == city_id:
@@ -43,7 +47,7 @@ def del_a_place(place_id):
 
 @app_views.route('/cities/<city_id>/places', methods=['POST'],
                  strict_slashes=False)
-def create_a_place():
+def create_a_place(city_id):
     """create a place"""
     req = request.get_json()
     if not request.is_json:
@@ -58,9 +62,10 @@ def create_a_place():
     if key not in req:
         abort(400, description="Missing user_id")
     key = req['user_id']
-    user = storage.get(User, user_id)
-    if user is none:
+    user = storage.get(User, key)
+    if user is None:
         abort(404)
+    req['city_id'] = city_id
     new_place = Place(**req)
     new_place.save()
     return jsonify(new_place.to_dict()), 201
