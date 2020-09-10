@@ -13,6 +13,9 @@ from models.user import User
 def get_reviews(place_id):
     """yelp"""
     lizt = []
+    place = storage.get(Place, place_id)
+    if place is None:
+        abort(404)
     reviews = storage.all(Review).values()
     for review in reviews:
         if review.place_id == place_id:
